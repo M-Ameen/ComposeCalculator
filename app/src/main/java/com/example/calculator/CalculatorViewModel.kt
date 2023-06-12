@@ -9,18 +9,18 @@ class CalculatorViewModel: ViewModel() {
 
     var state by mutableStateOf(CalculatorState())
 
-    fun onAction(action: CalculatorAction) {
+    fun onAction(action: Actions) {
         when(action) {
-            is CalculatorAction.Number -> enterNumber(action.number)
-            is CalculatorAction.Delete -> delete()
-            is CalculatorAction.Clear -> state = CalculatorState()
-            is CalculatorAction.Operation -> enterOperation(action.operation)
-            is CalculatorAction.Decimal -> enterDecimal()
-            is CalculatorAction.Calculate -> calculate()
+            is Actions.Number -> enterNumber(action.number)
+            is Actions.Delete -> delete()
+            is Actions.Clear -> state = CalculatorState()
+            is Actions.Operation -> enterOperation(action.operation)
+            is Actions.Decimal -> enterDecimal()
+            is Actions.Calculate -> calculate()
         }
     }
 
-    private fun enterOperation(operation: CalculatorOperation) {
+    private fun enterOperation(operation: Operations) {
         if(state.number1.isNotBlank()) {
             state = state.copy(operation = operation)
         }
@@ -31,10 +31,10 @@ class CalculatorViewModel: ViewModel() {
         val number2 = state.number2.toDoubleOrNull()
         if(number1 != null && number2 != null) {
             val result = when(state.operation) {
-                is CalculatorOperation.Add -> number1 + number2
-                is CalculatorOperation.Subtract -> number1 - number2
-                is CalculatorOperation.Multiply -> number1 * number2
-                is CalculatorOperation.Divide -> number1 / number2
+                is Operations.Add -> number1 + number2
+                is Operations.Subtract -> number1 - number2
+                is Operations.Multiply -> number1 * number2
+                is Operations.Divide -> number1 / number2
                 null -> return
             }
             state = state.copy(
