@@ -1,9 +1,10 @@
-package com.plcoding.calculatorprep
+package com.example.calculator
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.plcoding.calculatorprep.CalculatorState
 
 class CalculatorViewModel: ViewModel() {
 

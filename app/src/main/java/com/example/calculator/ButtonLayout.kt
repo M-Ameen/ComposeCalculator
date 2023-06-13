@@ -1,4 +1,4 @@
-package com.plcoding.calculatorprep
+package com.example.calculator
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

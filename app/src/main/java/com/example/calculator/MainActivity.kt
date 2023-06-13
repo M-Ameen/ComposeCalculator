@@ -3,6 +3,7 @@
 package com.example.calculator
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -15,33 +16,60 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calculator.ui.theme.CalculatorTheme
-import com.plcoding.calculatorprep.Actions
-import com.plcoding.calculatorprep.CalculatorButton
-import com.plcoding.calculatorprep.CalculatorViewModel
-import com.plcoding.calculatorprep.Operations
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             CalculatorTheme {
                 val viewModel = viewModel<CalculatorViewModel>()
                 val state = viewModel.state
                 val buttonSpacing = 8.dp
+
+
+                val context= LocalContext.current
+                val scope= rememberCoroutineScope()
+                val dataStore= StoreCalculations(context)
+                val savedvalue= dataStore.getCurrentValue.collectAsState(initial = "")
+                DisposableEffectWithLifecycle(
+                    onResume = {
+                        Toast.makeText(this@MainActivity, "Application started $savedvalue", Toast.LENGTH_SHORT).show()
+                    },
+                    onPause = {
+                        scope.launch {
+                            dataStore.saveValue(state)
+                            Toast.makeText(this@MainActivity, "Application closed$state", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+
+
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -274,6 +302,41 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    @Composable
+    private fun DisposableEffectWithLifecycle(
+        onResume: () -> Unit,
+        onPause: () -> Unit,
+    ) {
+        val context = LocalContext.current
+        val lifecycleOwner = LocalLifecycleOwner.current
+
+//        Toast.makeText(context, "DisposableEffectWithLifecycle composition ENTER", Toast.LENGTH_SHORT).show()
+
+        val currentOnResume by rememberUpdatedState(onResume)
+        val currentOnPause by rememberUpdatedState(onPause)
+
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> {
+                        currentOnResume()
+                    }
+                    Lifecycle.Event.ON_PAUSE -> {
+                        currentOnPause()
+                    }
+                    else -> {}
+                }
+            }
+
+            lifecycleOwner.lifecycle.addObserver(observer)
+
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+            }
+        }
+    }
+
+
 }
 
 //@Composable

@@ -1,4 +1,4 @@
-package com.plcoding.calculatorprep
+package com.example.calculator
 
 sealed class Actions {
     data class Number(val number: Int): Actions()

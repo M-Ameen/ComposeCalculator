@@ -1,4 +1,4 @@
-package com.plcoding.calculatorprep
+package com.example.calculator
 
 sealed class Operations(val symbol: String) {
     object Add: Operations("+")
