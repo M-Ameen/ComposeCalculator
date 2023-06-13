@@ -1,6 +1,6 @@
 package com.example.calculator
 
-sealed class Operations(val symbol: String) {
+sealed class Operations(var symbol: String) {
     object Add: Operations("+")
     object Subtract: Operations("-")
     object Multiply: Operations("x")

@@ -3,6 +3,7 @@
 package com.example.calculator
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,24 +52,30 @@ class MainActivity : ComponentActivity() {
                 val state = viewModel.state
                 val buttonSpacing = 8.dp
 
-
                 val context= LocalContext.current
                 val scope= rememberCoroutineScope()
                 val dataStore= StoreCalculations(context)
                 val savedvalue= dataStore.getCurrentValue.collectAsState(initial = "")
                 DisposableEffectWithLifecycle(
                     onResume = {
-                        Toast.makeText(this@MainActivity, "Application started $savedvalue", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Application started $savedvalue",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     },
                     onPause = {
                         scope.launch {
-                            dataStore.saveValue(state)
-                            Toast.makeText(this@MainActivity, "Application closed$state", Toast.LENGTH_SHORT).show()
+                            val composedText = buildString {
+                                append(state.number1)
+                                append(state.operation?.symbol ?: "")
+                                append(state.number2)
+                            }
+                            dataStore.saveValue(composedText)
+                            Toast.makeText(this@MainActivity, "Application closed$composedText", Toast.LENGTH_SHORT).show()
                         }
                     }
                 )
-
-
 
                 Box(
                     modifier = Modifier

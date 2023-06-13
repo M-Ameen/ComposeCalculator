@@ -27,7 +27,7 @@ class StoreCalculations(private val context: Context) {
 
 
 //    save value
-    suspend fun saveValue(value: CalculatorState) {
+    suspend fun saveValue(value: String) {
         context.dataStore.edit { preferences ->
             preferences[CURRENT_VALUE_KEY] = value.toString()
         }
