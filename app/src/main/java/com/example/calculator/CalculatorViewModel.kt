@@ -1,5 +1,6 @@
 package com.example.calculator
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,32 @@ class CalculatorViewModel: ViewModel() {
 
     var state by mutableStateOf(CalculatorState())
 
+    fun saveStateToSharedPreferences(context: Context) {
+        val sharedPref = context.getSharedPreferences("CalculatorPreferences", Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("Number1", state.number1)
+            putString("Number2", state.number2)
+            putString("Operation", state.operation?.symbol)
+            apply()
+        }
+    }
+
+    fun loadStateFromSharedPreferences(context: Context) {
+        val sharedPref = context.getSharedPreferences("CalculatorPreferences", Context.MODE_PRIVATE)
+        val number1 = sharedPref.getString("Number1", "")
+        val number2 = sharedPref.getString("Number2", "")
+        val operationSymbol = sharedPref.getString("Operation", null)
+
+        val operation = when (operationSymbol) {
+            "+" -> Operations.Add
+            "-" -> Operations.Subtract
+            "x" -> Operations.Multiply
+            "/" -> Operations.Divide
+            else -> null
+        }
+
+        state = CalculatorState(number1 = number1 ?: "", number2 = number2 ?: "", operation = operation)
+    }
     fun onAction(action: Actions) {
         when(action) {
             is Actions.Number -> enterNumber(action.number)
